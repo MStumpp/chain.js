@@ -28,7 +28,7 @@
         </ul>
       </header>
       <section>
-        <h3>Basic Chaining of function calls</h3>
+        <h3>Basic chaining of function calls</h3>
 
 <pre><code>var Model = function() {};
 
@@ -47,7 +47,7 @@ Model.prototype.func2 = function() {
 };
 </code></pre>
 
-<p>Chainify the Model and call the functions:</p>
+<p>Chainify() the Model and call the functions:</p>
 
 <pre><code>chainify(Model);
 
@@ -55,19 +55,19 @@ var Obj = new Model();
 Obj.func1().func2();
 </code></pre>
 
-<p>Prints to console:</p>
+<p>Console output:</p>
 
-<pre><code>func1 has 0 preceding functions edit:134
-func2 has 1 preceding functions edit:143
-func1 has 1 succeeding functions edit:136
-func1 processing... edit:137
-func2 has 0 succeeding functions edit:145
+<pre><code>func1 has 0 preceding functions
+func2 has 1 preceding functions
+func1 has 1 succeeding functions
+func1 processing...
+func2 has 0 succeeding functions
 func2 processing... 
 </code></pre>
 
 <h3>Add asynchronous processing to a chained function call</h3>
 
-<p>Same as above, but func1 looks like this:</p>
+<p>Same as above, but func1() looks like this:</p>
 
 <pre><code>Model.prototype.func1 = function() {
   console.log('func1 has ' + this.c_getPredecessors().length + ' preceding functions');
@@ -83,7 +83,7 @@ func2 processing...
 };
 </code></pre>
 
-<p>We get the same as above, but have to wait 5 seconds until the setTimeout() callback is fired.</p>
+<p>We get the same console output as above, but have to wait 5 seconds until the setTimeout() callback is fired.</p>
 
 <pre><code>func1 has 0 preceding functions
 func2 has 1 preceding functions
@@ -94,17 +94,18 @@ func2 has 0 succeeding functions
 func2 processing... 
 </code></pre>
 
-<p>This above examples demonstrates that chained functions are called in sequential order, as expected.  </p>
+<p>This previous example demonstrates that chained functions are called in sequential order, as expected.  </p>
 
-<h3>Passing in a callback, call when asynchronous function finishes execution:</h3>
+<h3>Passing in a callback, call when asynchronous function terminates:</h3>
 
-<p>Same as above, but don't forget to pass in the "arguments" array whenever you want to access arguments within the function passed to c_chain() and/or want the callback capability, demonstrated here.</p>
+<p>Same as above, but don't forget to pass in the "arguments" array whenever you want to access arguments within the function passed to c_chain() and/or want the callback capability, which is demonstrated here.</p>
 
 <pre><code>Model.prototype.func1 = function() {
   console.log('func1 has ' + this.c_getPredecessors().length + ' preceding functions');
   return this.c_delay().c_chain(function() {   
     console.log('func1 has ' + this.c_getSuccessors().length + ' succeeding functions');
     console.log('func1 processing...');
+
     var self = this;
     setTimeout(function() {
       self.c_next();
@@ -113,7 +114,7 @@ func2 processing...
 };
 </code></pre>
 
-<p>Now, we pass in a callback to func1(). It's called AFTER the internal asynchronous call to setTimeout(). </p>
+<p>Now, we pass in a callback to func1(). It's called AFTER the internal asynchronous call to setTimeout() has fired and the function terminated. </p>
 
 <pre><code>chainify(Model);
 
@@ -124,7 +125,7 @@ Obj.func1(function() {
 }).func2();
 </code></pre>
 
-<p>Prints:</p>
+<p>Console output:</p>
 
 <pre><code>func1 has 0 preceding functions
 func2 has 1 preceding functions
@@ -138,11 +139,13 @@ func2 processing...
 
 <h3>How this works</h3>
 
-<p>For every function to be chained, a new "slave" object is created with the prototype of the "master" object (Model = master object). The body of the current function is attached to this object. Once the setup is done, a setTimeout() of 1 ms, pointing the body of the current function, is instantiated. The object is then passed to the next function in the chain. This function then decides whether to process all previously chained functions or delay their execution by clearing the timer and adding itself to the chain.</p>
+<p>For every function to be chained, a new <strong>"slave"</strong> object is created internally with the prototype of the <strong>"master"</strong> object (example above: "Model" = "master" object). The core code base of the current function is attached to the slave. Once the setup is done, a <strong>setTimeout() of 1 ms</strong>, pointing the core code base of the current function, is instantiated. </p>
 
-<p>If all functions are chained, the timer of the last function isn't cleared, thus initiating processing of the chain containing the functions to be called.</p>
+<p>The object is then returned and eventually handed over to the next function. This function then decides whether to process all previously chained functions using <strong>c_process()</strong>, or delay their execution by clearing the timer using <strong>c_delay()</strong> and adding itself to the chain using <strong>c_chain()</strong>. This function may also clear all previously chained functions using <strong>c_clear()</strong>.</p>
 
-<p>Due to the asynchronous nature of setTimeout(), the execution of your function chain may be postponed. Take the code of the first example shown above and the following code:</p>
+<p>Not surprisingly, the timer of the last function isn't cleared, because there simply isn't any subsequent function which could clear the timer. Thus, once the setTimeout fires after 1ms, processing of the chained functions begins. </p>
+
+<p>Due to the asynchronous nature of the setTimeout() function, the execution of the function chain may be postponed. Take the model code of the first example shown above and the following:</p>
 
 <pre><code>chainify(Model);
 
@@ -152,7 +155,7 @@ Obj.func1().func2();
 console.log('chainifying functions is cool!');
 </code></pre>
 
-<p>Prints:</p>
+<p>Console output:</p>
 
 <pre><code>chainifying functions is cool!
 
@@ -161,7 +164,7 @@ func2 has 1 preceding functions
 ...
 </code></pre>
 
-<p>Depending on your use case, this may not be an issue. However, you may either use a callback on your last function (as shown above) or add a call to exec(). </p>
+<p>Depending on the use case, this may not be an issue at all. However, you may either prefer to use a callback on the last function or call exec() at the end. </p>
 
 <pre><code>chainify(Model);
 
@@ -179,6 +182,8 @@ func2 has 1 preceding functions
 
 chainifying functions is cool!
 </code></pre>
+
+<p>I am currently investigating alternatives to achieve the latter without actually calling exec().</p>
 
 <p>Happy function chaining :)</p>
       </section>
