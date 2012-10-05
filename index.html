@@ -141,7 +141,7 @@ func2 processing...
 
 <h3>How this works</h3>
 
-<p>For every function to be chained, a new <strong>"slave"</strong> object is created internally with the prototype of the <strong>"master"</strong> object (example above: "Model" = "master" object). The core code base of the current function is attached to the slave. Once the setup is done, a <strong>setTimeout() of 1 ms</strong>, pointing the core code base of the current function, is instantiated. </p>
+<p>For every function to be chained, a new <strong>slave</strong> object is created internally with the prototype of the <strong>master</strong> object (example above: "Model" = "master" object). The core code base of the current function is attached to the slave. Once the setup is done, a <strong>setTimeout() of 1 ms</strong>, pointing the core code base of the current function, is instantiated. </p>
 
 <p>The object is then returned and eventually handed over to the next function. This function then decides whether to process all previously chained functions using <strong>c_process()</strong>, or delay their execution by clearing the timer using <strong>c_delay()</strong> and adding itself to the chain using <strong>c_chain()</strong>. This function may also clear all previously chained functions using <strong>c_clear()</strong>.</p>
 
