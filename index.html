@@ -98,7 +98,7 @@ func2 processing...
 
 <p>This previous example demonstrates that chained functions are called in sequential order, as expected.  </p>
 
-<h3>Passing in a callback, call when asynchronous function terminates:</h3>
+<h3>Passing in a callback, call when asynchronous function terminates</h3>
 
 <p>Same as above, but don't forget to pass in the "arguments" array whenever you want to access arguments within the function passed to c_chain() and/or want the callback capability, which is demonstrated here.</p>
 
@@ -171,7 +171,7 @@ func2 has 1 preceding functions
 <pre><code>chainify(Model);
 
 var Obj = new Model();
-Obj.func1().func2();
+Obj.func1().func2().exec();
 
 console.log('chainifying functions is cool!');
 </code></pre>
